@@ -1,5 +1,7 @@
 using System.Diagnostics;
+using INFOGR2024TemplateP2;
 using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Template
 {
@@ -7,7 +9,7 @@ namespace Template
     {
         // member variables
         public Surface screen;                  // background surface for printing etc.
-        Mesh? teapot, floor;                    // meshes to draw using OpenGL
+        Mesh? teapot, teapotChild, floor;                    // meshes to draw using OpenGL
         float a = 0;                            // teapot rotation angle
         readonly Stopwatch timer = new();       // timer for measuring frame duration
         Shader? shader;                         // shader to use for rendering
@@ -17,16 +19,20 @@ namespace Template
         ScreenQuad? quad;                       // screen filling quad for post processing
         readonly bool useRenderTarget = true;   // required for post processing
 
+        SceneGraph sceneGraph;
+
         // constructor
         public MyApplication(Surface screen)
         {
             this.screen = screen;
+            sceneGraph = new SceneGraph();
         }
         // initialize
         public void Init()
         {
             // load teapot
             teapot = new Mesh("../../../assets/teapot.obj");
+            teapotChild = new Mesh("../../../assets/teapot.obj");
             floor = new Mesh("../../../assets/floor.obj");
             // initialize stopwatch
             timer.Reset();
@@ -39,6 +45,23 @@ namespace Template
             // create the render target
             if (useRenderTarget) target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
+
+            // build scene graph
+            var rootNode = new SceneGraphNode(null);
+            var teapotNode = new SceneGraphNode(teapot);
+            var teapotChildNode = new SceneGraphNode(teapotChild);
+            var floorNode = new SceneGraphNode(floor);
+
+            float angle90degrees = MathF.PI / 2;
+            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.2f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(3, 2, 0), a) ;
+            floorNode.LocalTransform = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+
+            rootNode.AddChild(teapotNode);
+            teapotNode.AddChild(teapotChildNode);
+            rootNode.AddChild(floorNode);
+
+            sceneGraph.Root = rootNode;
         }
 
         // tick for background surface
@@ -56,42 +79,30 @@ namespace Template
             timer.Reset();
             timer.Start();
 
-            // prepare matrix for vertex shader
-            float angle90degrees = MathF.PI / 2;
-            Matrix4 teapotObjectToWorld = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-            Matrix4 floorObjectToWorld = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-            Matrix4 worldToCamera = Matrix4.CreateTranslation(new Vector3(0, -14.5f, 0)) * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), angle90degrees);
-            Matrix4 cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), (float)screen.width/screen.height, .1f, 1000);
+            // prepare matrices
+            Matrix4 angle90degrees = Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
+            Matrix4 worldToCamera = Matrix4.CreateTranslation(new Vector3(0, -14.5f, 0)) * angle90degrees;
+            Matrix4 cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), (float)screen.width / screen.height, 0.1f, 1000);
 
             // update rotation
             a += 0.001f * frameDuration;
             if (a > 2 * MathF.PI) a -= 2 * MathF.PI;
 
-            if (useRenderTarget && target != null && quad != null)
-            {
-                // enable render target
-                target.Bind();
+            // update local transform for animated rotation
+            var teapotNode = sceneGraph.Root.Children[0];
+            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
 
-                // render scene to render target
-                if (shader != null && wood != null)
-                {
-                    teapot?.Render(shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld, wood);
-                    floor?.Render(shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, wood);
-                }
+            var teapotChildNode = teapotNode.Children[0];
+            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), a);
 
-                // render quad
-                target.Unbind();
-                if (postproc != null)
-                    quad.Render(postproc, target.GetTextureID());
-            }
-            else
+
+            // clear the screen
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            // render scene graph
+            if (shader != null && wood != null)
             {
-                // render scene directly to the screen
-                if (shader != null && wood != null)
-                {
-                    teapot?.Render(shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld, wood);
-                    floor?.Render(shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, wood);
-                }
+                sceneGraph.Render(shader, worldToCamera * cameraToScreen, wood);
             }
         }
     }
