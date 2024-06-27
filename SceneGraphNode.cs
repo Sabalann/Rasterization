@@ -16,6 +16,8 @@ namespace INFOGR2024TemplateP2
 
         public SceneGraphNode(Mesh mesh)
         {
+            Children = new List<SceneGraphNode>();
+            LocalTransform = Matrix4.Identity;
             Mesh = mesh;
             LocalTransform = Matrix4.Identity;
             Children = new List<SceneGraphNode>();
@@ -26,9 +28,10 @@ namespace INFOGR2024TemplateP2
             Children.Add(child);
         }
 
-        public void Render(Shader shader, Matrix4 parentTransform, Texture texture)
+        public void Render(Texture texture, Shader shader, Matrix4 parentTransform)
         {
             Matrix4 globalTransform = LocalTransform * parentTransform;
+
             if (Mesh != null)
             {
                 Mesh.Render(shader, globalTransform, LocalTransform, texture);
@@ -36,8 +39,12 @@ namespace INFOGR2024TemplateP2
 
             foreach (var child in Children)
             {
-                child.Render(shader, globalTransform, texture);
+                child.Render(texture, shader, globalTransform);
             }
+        }
+        public void AddChild(SceneGraphNode child)
+        {
+            Children.Add(child);
         }
     }
 }

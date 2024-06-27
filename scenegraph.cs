@@ -14,12 +14,12 @@ namespace INFOGR2024TemplateP2
 
         public SceneGraph()
         {
-            Root = new SceneGraphNode(null); // Root node with no mesh
+            Root = new SceneGraphNode(null);
         }
 
-        public void Render(Shader shader, Matrix4 cameraMatrix, Texture texture)
+        public void Render(Texture texture, Shader shader, Matrix4 cameraMatrix)
         {
-            Root.Render(shader, cameraMatrix, texture);
+            Root.Render(texture, shader, cameraMatrix);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 
 namespace Template
 {
@@ -13,6 +14,14 @@ namespace Template
         public int in_vertexUV;
         public int uniform_objectToScreen;
         public int uniform_objectToWorld;
+
+        public int uniform_ambientColor;
+        public int uniform_lightPositions;
+        public int uniform_lightColors;
+        public int uniform_lightIntensities;
+        public int uniform_numLights;
+        public int uniform_viewPos;
+        public int uniform_diffuseTexture;
 
         // constructor
         public Shader(string vertexShader, string fragmentShader)
@@ -32,6 +41,14 @@ namespace Template
             in_vertexUV = GL.GetAttribLocation(programID, "vertexUV");
             uniform_objectToScreen = GL.GetUniformLocation(programID, "objectToScreen");
             uniform_objectToWorld = GL.GetUniformLocation(programID, "objectToWorld");
+
+            uniform_ambientColor = GL.GetUniformLocation(programID, "ambientColor");
+            uniform_lightPositions = GL.GetUniformLocation(programID, "lightPositions");
+            uniform_lightColors = GL.GetUniformLocation(programID, "lightColors");
+            uniform_lightIntensities = GL.GetUniformLocation(programID, "lightIntensities");
+            uniform_numLights = GL.GetUniformLocation(programID, "numLights");
+            uniform_viewPos = GL.GetUniformLocation(programID, "viewPos");
+            uniform_diffuseTexture = GL.GetUniformLocation(programID, "diffuseTexture");
         }
 
         // loading shaders
@@ -45,6 +62,38 @@ namespace Template
             GL.AttachShader(program, ID);
             string infoLog = GL.GetShaderInfoLog(ID);
             if (infoLog.Length != 0) Console.WriteLine(infoLog);
+        }
+
+        public void SetAmbientColor(Vector3 color)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform3(uniform_ambientColor, ref color);
+        }
+
+        public void SetLight(int index, Vector3 position, Vector3 color, float intensity)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform3(uniform_lightPositions + index, ref position);
+            GL.Uniform3(uniform_lightColors + index, ref color);
+            GL.Uniform1(uniform_lightIntensities + index, intensity);
+        }
+
+        public void SetNumLights(int numLights)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(uniform_numLights, numLights);
+        }
+
+        public void SetViewPos(Vector3 viewPos)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform3(uniform_viewPos, ref viewPos);
+        }
+
+        public void SetDiffuseTexture(int textureUnit)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(uniform_diffuseTexture, textureUnit);
         }
     }
 }

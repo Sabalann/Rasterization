@@ -187,7 +187,7 @@ namespace Template
                 GL.Enable(EnableCap.DepthTest);
                 GL.Clear(ClearBufferMask.DepthBufferBit);
                 // do OpenGL rendering
-                app.RenderGL();
+                app.RenderGL(e, KeyboardState);
             }
             // tell OpenTK we're done rendering
             SwapBuffers();

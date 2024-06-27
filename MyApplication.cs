@@ -2,6 +2,9 @@ using System.Diagnostics;
 using INFOGR2024TemplateP2;
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Template
 {
@@ -9,7 +12,7 @@ namespace Template
     {
         // member variables
         public Surface screen;                  // background surface for printing etc.
-        Mesh? teapot, teapotChild, floor;                    // meshes to draw using OpenGL
+        Mesh? teapot, teapotChild, floor;       // meshes to draw using OpenGL
         float a = 0;                            // teapot rotation angle
         readonly Stopwatch timer = new();       // timer for measuring frame duration
         Shader? shader;                         // shader to use for rendering
@@ -19,7 +22,16 @@ namespace Template
         ScreenQuad? quad;                       // screen filling quad for post processing
         readonly bool useRenderTarget = true;   // required for post processing
 
+
+        Vector3 cameraPosition = new Vector3(0, 0, -10); // starting position
+        Vector3 cameraRotation = Vector3.Zero; // starting rotation
+
+        float camMoveSpeed = 0.1f; // can be adjusted during run with L to increase and K to decrease
+        float camRoatSpeed = 1.0f; // adjust to taste
+
         SceneGraph sceneGraph;
+        SceneGraphNode rootNode, teapotNode, teapotChildNode, floorNode; // scenegraph nodes
+
 
         // constructor
         public MyApplication(Surface screen)
@@ -46,16 +58,15 @@ namespace Template
             if (useRenderTarget) target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
 
-            // build scene graph
-            var rootNode = new SceneGraphNode(null);
-            var teapotNode = new SceneGraphNode(teapot);
-            var teapotChildNode = new SceneGraphNode(teapotChild);
-            var floorNode = new SceneGraphNode(floor);
+            // scenegraph
+            rootNode = new SceneGraphNode(null);
+            teapotNode = new SceneGraphNode(teapot);
+            teapotChildNode = new SceneGraphNode(teapot); // same mesh as parent
+            floorNode = new SceneGraphNode(floor);
 
-            float angle90degrees = MathF.PI / 2;
-            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.2f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(3, 2, 0), a) ;
-            floorNode.LocalTransform = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f);
+            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.2f) * Matrix4.CreateTranslation(new Vector3(10, 0, 0));
+            floorNode.LocalTransform = Matrix4.CreateScale(4.0f);
 
             rootNode.AddChild(teapotNode);
             teapotNode.AddChild(teapotChildNode);
@@ -68,21 +79,27 @@ namespace Template
         public void Tick()
         {
             screen.Clear(0);
-            screen.Print("hello world", 2, 2, 0xffff00);
+            //screen.Print("hello world", 2, 2, 0xffff00);
         }
 
         // tick for OpenGL rendering code
-        public void RenderGL()
+        public void RenderGL(FrameEventArgs args, KeyboardState input)
         {
+
+            HandleInput(input);
+
+            // prepare camera transformation matrices
+            Matrix4 translation = Matrix4.CreateTranslation(cameraPosition);
+            Matrix4 rotation = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(cameraRotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(cameraRotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(cameraRotation.Z));
+
             // measure frame duration
             float frameDuration = timer.ElapsedMilliseconds;
             timer.Reset();
             timer.Start();
 
-            // prepare matrices
-            Matrix4 angle90degrees = Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), MathF.PI / 2);
-            Matrix4 worldToCamera = Matrix4.CreateTranslation(new Vector3(0, -14.5f, 0)) * angle90degrees;
+            Matrix4 worldToCamera = rotation * translation;
             Matrix4 cameraToScreen = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60.0f), (float)screen.width / screen.height, 0.1f, 1000);
+
 
             // update rotation
             a += 0.001f * frameDuration;
@@ -96,14 +113,55 @@ namespace Template
             teapotChildNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), a);
 
 
-            // clear the screen
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            // render scene graph
+            // Set Phong lighting uniforms
             if (shader != null && wood != null)
             {
-                sceneGraph.Render(shader, worldToCamera * cameraToScreen, wood);
+                shader.SetAmbientColor(new Vector3(0.1f, 0.1f, 0.1f));
+                shader.SetNumLights(lightPositions.Length);
+                for (int i = 0; i < lightPositions.Length; i++)
+                {
+                    shader.SetLight(i, lightPositions[i], lightColors[i], lightIntensities[i]);
+                }
+                shader.SetViewPos(cameraPosition);
+                shader.SetDiffuseTexture(0); // Assumes the texture is bound to GL_TEXTURE0
+
+                // Use the shader program
+                GL.UseProgram(shader.programID);
+
+                // Render the scene graph
+                sceneGraph.Render(wood, shader, worldToCamera * cameraToScreen);
             }
+            
+
+        }
+
+        private void HandleInput(KeyboardState input)
+        {
+
+
+            // Translation with WASD keys
+            if (input.IsKeyDown(Keys.S))
+                cameraPosition.Z -= camMoveSpeed;
+            if (input.IsKeyDown(Keys.W))
+                cameraPosition.Z += camMoveSpeed;
+            if (input.IsKeyDown(Keys.D))
+                cameraPosition.X -= camMoveSpeed;
+            if (input.IsKeyDown(Keys.A))
+                cameraPosition.X += camMoveSpeed;
+            if (input.IsKeyDown(Keys.L))
+                camMoveSpeed += 0.1f;
+            if (input.IsKeyDown(Keys.K))
+                camMoveSpeed -= 0.1f;
+
+            // Rotation with arrow keys
+            if (input.IsKeyDown(Keys.Up))
+                cameraRotation.X -= camRoatSpeed;
+            if (input.IsKeyDown(Keys.Down))
+                cameraRotation.X += camRoatSpeed;
+            if (input.IsKeyDown(Keys.Left))
+                cameraRotation.Y -= camRoatSpeed;
+            if (input.IsKeyDown(Keys.Right))
+                cameraRotation.Y += camRoatSpeed;
         }
     }
 }
