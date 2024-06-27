@@ -1,0 +1,44 @@
+﻿using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Template;
+
+namespace INFOGR2024TemplateP2
+{
+    internal class SceneGraphNode
+    {
+        public Mesh Mesh;
+        public Matrix4 LocalTransform;
+        public List<SceneGraphNode> Children;
+
+        public SceneGraphNode(Mesh mesh)
+        {
+            Children = new List<SceneGraphNode>();
+            LocalTransform = Matrix4.Identity;
+            Mesh = mesh;
+        }
+
+
+        public void Render(Texture texture, Shader shader, Matrix4 parentTransform)
+        {
+            Matrix4 globalTransform = LocalTransform * parentTransform;
+
+            if (Mesh != null)
+            {
+                Mesh.Render(shader, globalTransform, LocalTransform, texture);
+            }
+
+            foreach (var child in Children)
+            {
+                child.Render(texture, shader, globalTransform);
+            }
+        }
+        public void AddChild(SceneGraphNode child)
+        {
+            Children.Add(child);
+        }
+    }
+}
