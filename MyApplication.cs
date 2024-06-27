@@ -108,17 +108,48 @@ namespace Template
             // smaller teapot has a rotation of its own + the parent rotation
             teapotChildNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), a);
 
+            Vector3[] lightPositions = new Vector3[]
+            {
+                new Vector3(10.0f, 10.0f, 10.0f),
+                new Vector3(-10.0f, 10.0f, 10.0f)
+            };
+            Vector3[] lightColors = new Vector3[]
+            {
+                new Vector3(1.0f, 1.0f, 1.0f),
+                new Vector3(1.0f, 0.0f, 0.0f)
+            };
+            float[] lightIntensities = new float[]
+            {
+                1.0f,
+                0.5f
+            };
 
-                // render scene to render target
-                if (shader != null && wood != null)
+            // Set Phong lighting uniforms
+            if (shader != null && wood != null)
+            {
+                shader.SetAmbientColor(new Vector3(0.1f, 0.1f, 0.1f));
+                shader.SetNumLights(lightPositions.Length);
+                for (int i = 0; i < lightPositions.Length; i++)
+                {
+                    shader.SetLight(i, lightPositions[i], lightColors[i], lightIntensities[i]);
+                }
+                shader.SetViewPos(cameraPosition);
+                shader.SetDiffuseTexture(0); // Assumes the texture is bound to GL_TEXTURE0
+
+                // Use the shader program
+                GL.UseProgram(shader.programID);
+
+                // Render the scene graph
+                sceneGraph.Render(wood, shader, worldToCamera * cameraToScreen);
+            }
+
+            // render scene to render target
+            if (shader != null && wood != null)
                 {
                     teapot?.Render(shader, teapotObjectToWorld * worldToCamera * cameraToScreen, teapotObjectToWorld, wood);
                     floor?.Render(shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, wood);
                 }
 
-            // render scene graph
-
-            sceneGraph.Render(wood, shader, worldToCamera * cameraToScreen);
         }
 
         private void HandleInput(KeyboardState input)
