@@ -70,6 +70,12 @@ namespace Template
             GL.Uniform3(uniform_ambientColor, ref color);
         }
 
+        public void SetFloat(string name, float value)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(GL.GetUniformLocation(programID, name), value);
+        }
+
         public void SetLight(int index, Vector3 position, Vector3 color, float intensity)
         {
             GL.UseProgram(programID);

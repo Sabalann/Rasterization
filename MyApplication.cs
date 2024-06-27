@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using INFOGR2024TemplateP2;
 
 namespace Template
 {
@@ -55,6 +56,17 @@ namespace Template
             if (useRenderTarget) target = new RenderTarget(screen.width, screen.height);
             quad = new ScreenQuad();
 
+            SceneGraphNode teapot1 = new SceneGraphNode(teapot);
+            teapot1.LocalTransform = Matrix4.CreateTranslation(2, 0, 0);
+            teapot1.Shininess = 64.0f;
+
+            SceneGraphNode teapot2 = new SceneGraphNode(teapot);
+            teapot2.LocalTransform = Matrix4.CreateTranslation(-2, 0, 0);
+            teapot2.Shininess = 16.0f;
+
+            rootNode.AddChild(teapot1);
+            rootNode.AddChild(teapot2);
+
             // scenegraph
             rootNode = new SceneGraphNode(null);
             teapotNode = new SceneGraphNode(teapot);
@@ -70,6 +82,15 @@ namespace Template
             rootNode.AddChild(floorNode);
 
             sceneGraph.Root = rootNode;
+
+            Light light1 = new Light(new Vector3(10.0f, 10.0f, 10.0f), new Vector3(1.0f, 1.0f, 1.0f), 1.0f);
+            Light light2 = new Light(new Vector3(-10.0f, 5.0f, -5.0f), new Vector3(0.5f, 0.0f, 0.0f), 0.8f);
+
+            rootNode.AddLight(light1);
+            teapotNode.AddLight(light2);
+
+            teapotNode.Shininess = 32.0f;
+            floorNode.Shininess = 4.0f;
         }
 
         // tick for background surface
@@ -150,7 +171,20 @@ namespace Template
                     floor?.Render(shader, floorObjectToWorld * worldToCamera * cameraToScreen, floorObjectToWorld, wood);
                 }
 
+            List<Light> allLights = rootNode.CollectLights();
+            if (shader != null)
+            {
+                shader.SetNumLights(Math.Min(allLights.Count, 4));  // Assuming max 4 lights
+                for (int i = 0; i < Math.Min(allLights.Count, 4); i++)
+                {
+                    shader.SetLight(i, allLights[i].Position, allLights[i].Color, allLights[i].Intensity);
+                }
+            }
+            rootNode.Render(wood, shader, worldToCamera * cameraToScreen);
+
         }
+
+
 
         private void HandleInput(KeyboardState input)
         {

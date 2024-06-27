@@ -21,5 +21,6 @@ namespace INFOGR2024TemplateP2
         {
             Root.Render(texture, shader, cameraMatrix);
         }
+
     }
 }
