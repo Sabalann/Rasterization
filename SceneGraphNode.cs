@@ -42,9 +42,6 @@ namespace INFOGR2024TemplateP2
                 child.Render(texture, shader, globalTransform);
             }
         }
-        public void AddChild(SceneGraphNode child)
-        {
-            Children.Add(child);
-        }
+
     }
 }
