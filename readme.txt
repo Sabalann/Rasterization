@@ -7,7 +7,7 @@ Tick the boxes below for the implemented features. Add a brief note only if nece
 
 Formalities:
 [x] This readme.txt
-[ ] Cleaned (no obj/bin folders)
+[x] Cleaned (no obj/bin folders)
 [x] Demonstration scene(s) with all implemented features
 [ ] (Optional) Screenshots: make it clear which feature is demonstrated in which screenshot
 
