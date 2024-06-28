@@ -78,10 +78,7 @@ namespace Template
 
             floorNode = new SceneGraphNode(floor);
 
-            teapotNode.LocalTransform = Matrix4.CreateScale(1f);
-            teapot2Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(10, 0, 0));
-            teapot3Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(20, 0, 0));
-            teapot4Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(30, 0, 0));
+
 
 
             floorNode.LocalTransform = Matrix4.CreateScale(4.0f);
@@ -96,10 +93,14 @@ namespace Template
             sceneGraph.Root = rootNode;
 
             Light light1 = new Light(new Vector3(10.0f, 10.0f, 10.0f), new Vector3(1.0f, 1.0f, 1.0f), 1.0f);
-            Light light2 = new Light(new Vector3(-10.0f, 5.0f, -5.0f), new Vector3(0.5f, 0.0f, 0.0f), 0.8f);
+            //Light light2 = new Light(new Vector3(-10.0f, 5.0f, -5.0f), new Vector3(0.5f, 0.0f, 0.0f), 0.8f); // wasn't really working correctly
+            //Light light3 = new Light(new Vector3(-10.0f, 5.0f, -5.0f), new Vector3(0f, 0.0f, 10f), 0.8f);
+
 
             rootNode.AddLight(light1);
-            teapotNode.AddLight(light2);
+            //rootNode.AddLight(light2);
+            //rootNode.AddLight(light3);
+
 
             teapotNode.Shininess = 32.0f;
             floorNode.Shininess = 4.0f;
@@ -139,19 +140,16 @@ namespace Template
 
             // update local transform for animated rotation
             teapotNode.LocalTransform = Matrix4.CreateScale(1f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-
-            teapot2Node.LocalTransform = Matrix4.CreateScale(0.8f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-
-            teapot3Node.LocalTransform = Matrix4.CreateScale(0.6f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-
-            teapot4Node.LocalTransform = Matrix4.CreateScale(0.4f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-
+            teapot2Node.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(20, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+            teapot3Node.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(20, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+            teapot4Node.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(20, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
 
 
             List<Light> allLights = rootNode.CollectLights();
+
             if (shader != null)
             {
-                shader.SetNumLights(Math.Min(allLights.Count, 4));  // Assuming max 4 lights
+                shader.SetNumLights(Math.Min(allLights.Count, 4));
                 for (int i = 0; i < Math.Min(allLights.Count, 4); i++)
                 {
                     shader.SetLight(i, allLights[i].Position, allLights[i].Color, allLights[i].Intensity);
@@ -167,7 +165,7 @@ namespace Template
         {
 
 
-            // Translation with WASD keys
+            // Translation with WASD & QE keys
             if (input.IsKeyDown(Keys.S))
                 cameraPosition.Z -= camMoveSpeed;
             if (input.IsKeyDown(Keys.W))

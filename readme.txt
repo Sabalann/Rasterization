@@ -17,11 +17,11 @@ Controls:	WASD for moving/translation of the camera in the X and Z directions, Q
 			Arrow keys for rotation of the camera,
 			K and L for adjusting the speed of the movement of the camera.
 
-[x] Model matrix: for each mesh, stored as part of the scene graph
-[x] Scene graph data structure: tree hierarchy, no limitation on breadth or depth or size
-[x] Rendering: recursive scene graph traversal, correct model matrix concatenation
-[ ] Shading in fragment shader: diffuse, glossy, uniform variable for ambient light color
-[x] Point light: at least 1, position/color may be hardcoded
+[+] Model matrix: for each mesh, stored as part of the scene graph
+[+] Scene graph data structure: tree hierarchy, no limitation on breadth or depth or size
+[+] Rendering: recursive scene graph traversal, correct model matrix concatenation
+[+/-] Shading in fragment shader: diffuse, glossy, uniform variable for ambient light color
+[+] Point light: at least 1, position/color may be hardcoded
 
 Bonus features implemented:
 [ ] Multiple point lights: at least 4, uniform variables to change position and color at runtime
@@ -40,5 +40,14 @@ Bonus features implemented:
 
 Notes:
 After we had already started working on the project we realized there were instructions on how we can implement the scenegraph and shading,
-that's why our implementation is a bit different from the instructions.
+that's why our implementation is a bit different from the instructions. The model matrix is stored in each node instead of each mesh. Also
+we have added a scenegraphNode class instead of just the scenegraph class, which might be redundant but it made more sense for us to have it like this.
+The scenegraph render method basically just calls the scenegraphNode render method.
+
+The scene shows 4 teapots, each one is smaller than the next, which shows the hierarchy of the scene graph. The same rotation matrix is applied
+to each one each frame, but since they're childeren of each other, the higher down the hierarchy the bigger the rotation. This shows that there
+is no real limit to the depth of the scene graph.
+
+We tried to add multiple lights, but it didn't seem to work correctly. We left the code we had in there but it essentially does very little.
+Changing the position and color of the first light should work accordingly however.
 

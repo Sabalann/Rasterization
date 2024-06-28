@@ -50,10 +50,6 @@ namespace INFOGR2024TemplateP2
 
         }
 
-
-
-
-
         public List<Light> CollectLights()
         {
             List<Light> lights = new List<Light>(Lights);

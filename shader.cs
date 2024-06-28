@@ -64,16 +64,16 @@ namespace Template
             if (infoLog.Length != 0) Console.WriteLine(infoLog);
         }
 
+        public void SetNumLights(int numLights)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(uniform_numLights, numLights);
+        }
+
         public void SetAmbientColor(Vector3 color)
         {
             GL.UseProgram(programID);
             GL.Uniform3(uniform_ambientColor, ref color);
-        }
-
-        public void SetFloat(string name, float value)
-        {
-            GL.UseProgram(programID);
-            GL.Uniform1(GL.GetUniformLocation(programID, name), value);
         }
 
         public void SetLight(int index, Vector3 position, Vector3 color, float intensity)
@@ -83,13 +83,6 @@ namespace Template
             GL.Uniform3(uniform_lightColors + index, ref color);
             GL.Uniform1(uniform_lightIntensities + index, intensity);
         }
-
-        public void SetNumLights(int numLights)
-        {
-            GL.UseProgram(programID);
-            GL.Uniform1(uniform_numLights, numLights);
-        }
-
         public void SetViewPos(Vector3 viewPos)
         {
             GL.UseProgram(programID);
@@ -101,5 +94,12 @@ namespace Template
             GL.UseProgram(programID);
             GL.Uniform1(uniform_diffuseTexture, textureUnit);
         }
+        public void SetFloat(string name, float value)
+        {
+            GL.UseProgram(programID);
+            GL.Uniform1(GL.GetUniformLocation(programID, name), value);
+        }
+
+
     }
 }
