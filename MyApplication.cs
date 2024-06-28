@@ -87,24 +87,14 @@ namespace Template
             sceneGraph.Root = rootNode;
 
             Light light1 = new Light(new Vector3(10.0f, 10.0f, 10.0f), new Vector3(1.0f, 1.0f, 1.0f), 1.0f);
-            Light light2 = new Light(new Vector3(-10.0f, 5.0f, 10.0f), new Vector3(0.5f, 0.0f, 0.0f), 1f);
-            Light light3 = new Light(new Vector3(-10.0f, 5.0f, 10.0f), new Vector3(0f, 0.0f, 10f), 0.8f);
+            Light light2 = new Light(new Vector3(-10.0f, 5.0f, 10.0f), new Vector3(0.5f, 0.0f, 0.0f), .5f);
+            Light light3 = new Light(new Vector3(-10.0f, 5.0f, 10.0f), new Vector3(0f, 0.0f, 2f), 0.8f);
 
 
             rootNode.AddLight(light1);
             rootNode.AddLight(light2);
             rootNode.AddLight(light3);
-            
-            List<Light> allLights = rootNode.CollectLights();
-            if (shader != null)
-            {
-                shader.SetNumLights(Math.Min(allLights.Count, 4));
-                for (int i = 0; i < Math.Min(allLights.Count, 4); i++)
-                {
-                    shader.SetLight(i, allLights[i].Position, allLights[i].Color, allLights[i].Intensity);
-                }
-            }
-            
+
             teapotNode.Shininess = 32.0f;
             floorNode.Shininess = 4.0f;
         }
@@ -145,26 +135,22 @@ namespace Template
             teapot4Node.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(20, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
 
 
-            // List<Light> allLights = rootNode.CollectLights();
-            //
-            // if (shader != null)
-            // {
-            //     shader.SetNumLights(Math.Min(allLights.Count, 4));
-            //     for (int i = 0; i < Math.Min(allLights.Count, 4); i++)
-            //     {
-            //         shader.SetLight(i, allLights[i].Position, allLights[i].Color, allLights[i].Intensity);
-            //     }
-            // }
+            List<Light> allLights = rootNode.CollectLights();
+            
+            if (shader != null)
+            {
+                shader.SetNumLights(Math.Min(allLights.Count, 4));
+                for (int i = 0; i < Math.Min(allLights.Count, 4); i++)
+                {
+                    shader.SetLight(i, allLights[i].Position, allLights[i].Color, allLights[i].Intensity);
+                }
+            }
             rootNode.Render(wood, shader, worldToCamera * cameraToScreen);
 
         }
 
-
-
         private void HandleInput(KeyboardState input)
         {
-
-
             // Translation with WASD & QE keys
             if (input.IsKeyDown(Keys.S))
                 cameraPosition.Z -= camMoveSpeed;
