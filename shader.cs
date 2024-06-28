@@ -78,10 +78,13 @@ namespace Template
 
         public void SetLight(int index, Vector3 position, Vector3 color, float intensity)
         {
+            int uniform_lightPositionElement = GL.GetUniformLocation(programID, $"lightPositions[{index}]");
+            int uniform_lightColorElement = GL.GetUniformLocation(programID, $"lightColors[{index}]");
+            int uniform_lightIntensityElement = GL.GetUniformLocation(programID, $"lightIntensities[{index}]");
             GL.UseProgram(programID);
-            GL.Uniform3(uniform_lightPositions + index, ref position);
-            GL.Uniform3(uniform_lightColors + index, ref color);
-            GL.Uniform1(uniform_lightIntensities + index, intensity);
+            GL.Uniform3(uniform_lightPositionElement, ref position);
+            GL.Uniform3(uniform_lightColorElement, ref color);
+            GL.Uniform1(uniform_lightIntensityElement, intensity);
         }
         public void SetViewPos(Vector3 viewPos)
         {

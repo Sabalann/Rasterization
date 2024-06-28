@@ -19,18 +19,25 @@ void main()
 {
     // Ambient
     vec3 ambient = ambientColor;
-
+    
     // Diffuse
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPositions[0] - FragPos); // Using first light for simplicity
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColors[0] * lightIntensities[0];
+    vec3 diffuse;
+    for (int i = 0; i < numLights; i++){
+        vec3 lightDir = normalize(lightPositions[i] - FragPos);
+        float diff = max(dot(norm, lightDir), 0.0);
+        diffuse += diff * lightColors[i] * lightIntensities[i];
+    }
 
     // Specular
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess); // Use shininess here
-    vec3 specular = spec * lightColors[0] * lightIntensities[0];
+    vec3 specular;
+    for (int i = 0; i < numLights; i++) {
+        vec3 lightDir = normalize(lightPositions[i] - FragPos);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess); // Use shininess here
+        specular += spec * lightColors[i] * lightIntensities[i];
+    }
 
     // Combine results
     vec3 result = (ambient + diffuse + specular) * texture(diffuseTexture, UV).rgb;

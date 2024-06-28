@@ -1,7 +1,7 @@
 Team members: (names and student IDs)
 * Sabalan Alaeiyeh 2576422
-* ...
-* ...
+* Armand Ayar 6402704
+* Jesse Tabak 1142356
 
 Tick the boxes below for the implemented features. Add a brief note only if necessary, e.g., if it's only partially working, or how to turn it on.
 
@@ -24,7 +24,8 @@ Controls:	WASD for moving/translation of the camera in the X and Z directions, Q
 [+] Point light: at least 1, position/color may be hardcoded
 
 Bonus features implemented:
-[ ] Multiple point lights: at least 4, uniform variables to change position and color at runtime
+[+/-] Multiple point lights: at least 4, uniform variables to change position and color at runtime
+Multiple point lights are supported but cannot be changed at runtime with control input or something
 [ ] Spot lights: position, center direction, opening angle, color
 [ ] Environment mapping: cube or sphere mapping, used in background and/or reflections
 [ ] Frustum culling: in C# code, using scene graph node bounds, may be conservative
