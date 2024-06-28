@@ -1,24 +1,27 @@
 Team members: (names and student IDs)
-* ...
+* Sabalan Alaeiyeh 2576422
 * ...
 * ...
 
 Tick the boxes below for the implemented features. Add a brief note only if necessary, e.g., if it's only partially working, or how to turn it on.
 
 Formalities:
-[ ] This readme.txt
+[x] This readme.txt
 [ ] Cleaned (no obj/bin folders)
-[ ] Demonstration scene(s) with all implemented features
+[x] Demonstration scene(s) with all implemented features
 [ ] (Optional) Screenshots: make it clear which feature is demonstrated in which screenshot
 
 Minimum requirements implemented:
-[ ] Camera: position and orientation controls
-Controls: ...
-[ ] Model matrix: for each mesh, stored as part of the scene graph
-[ ] Scene graph data structure: tree hierarchy, no limitation on breadth or depth or size
-[ ] Rendering: recursive scene graph traversal, correct model matrix concatenation
+[x] Camera: position and orientation controls
+Controls:	WASD for moving/translation of the camera in the X and Z directions, Q and E for moving the camera in the Y direction,
+			Arrow keys for rotation of the camera,
+			K and L for adjusting the speed of the movement of the camera.
+
+[x] Model matrix: for each mesh, stored as part of the scene graph
+[x] Scene graph data structure: tree hierarchy, no limitation on breadth or depth or size
+[x] Rendering: recursive scene graph traversal, correct model matrix concatenation
 [ ] Shading in fragment shader: diffuse, glossy, uniform variable for ambient light color
-[ ] Point light: at least 1, position/color may be hardcoded
+[x] Point light: at least 1, position/color may be hardcoded
 
 Bonus features implemented:
 [ ] Multiple point lights: at least 4, uniform variables to change position and color at runtime
@@ -36,4 +39,6 @@ Bonus features implemented:
 [ ] ...
 
 Notes:
-...
+After we had already started working on the project we realized there were instructions on how we can implement the scenegraph and shading,
+that's why our implementation is a bit different from the instructions.
+

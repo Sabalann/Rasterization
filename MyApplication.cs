@@ -31,7 +31,7 @@ namespace Template
         float camRoatSpeed = 1.0f; // adjust to taste
 
         SceneGraph sceneGraph;
-        SceneGraphNode rootNode, teapotNode, teapotChildNode, floorNode; // scenegraph nodes
+        SceneGraphNode rootNode, teapotNode, teapot2Node, teapot3Node, teapot4Node, floorNode; // scenegraph nodes
 
 
         // constructor
@@ -67,21 +67,30 @@ namespace Template
             teapot2.LocalTransform = Matrix4.CreateTranslation(-2, 0, 0);
             teapot2.Shininess = 16.0f;
 
-            rootNode.AddChild(teapot1);
-            rootNode.AddChild(teapot2);
 
             // scenegraph
             rootNode = new SceneGraphNode(null);
             teapotNode = new SceneGraphNode(teapot);
-            teapotChildNode = new SceneGraphNode(teapot); // same mesh as parent
+            teapot2Node = new SceneGraphNode(teapot); // same mesh as parent
+            teapot3Node = new SceneGraphNode(teapot);
+            teapot4Node = new SceneGraphNode(teapot);
+
+
             floorNode = new SceneGraphNode(floor);
 
-            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f);
-            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.2f) * Matrix4.CreateTranslation(new Vector3(10, 0, 0));
+            teapotNode.LocalTransform = Matrix4.CreateScale(1f);
+            teapot2Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(10, 0, 0));
+            teapot3Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(20, 0, 0));
+            teapot4Node.LocalTransform = Matrix4.CreateTranslation(new Vector3(30, 0, 0));
+
+
             floorNode.LocalTransform = Matrix4.CreateScale(4.0f);
 
             rootNode.AddChild(teapotNode);
-            teapotNode.AddChild(teapotChildNode);
+            teapotNode.AddChild(teapot2Node);
+            teapot2Node.AddChild(teapot3Node);
+            teapot3Node.AddChild(teapot4Node);
+
             rootNode.AddChild(floorNode);
 
             sceneGraph.Root = rootNode;
@@ -94,6 +103,8 @@ namespace Template
 
             teapotNode.Shininess = 32.0f;
             floorNode.Shininess = 4.0f;
+
+
         }
 
         // tick for background surface
@@ -127,32 +138,15 @@ namespace Template
             if (a > 2 * MathF.PI) a -= 2 * MathF.PI;
 
             // update local transform for animated rotation
-            var teapotNode = sceneGraph.Root.Children[0];
-            teapotNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+            teapotNode.LocalTransform = Matrix4.CreateScale(1f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
 
-            var teapotChildNode = teapotNode.Children[0];
-            teapotChildNode.LocalTransform = Matrix4.CreateScale(0.5f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(1, 0, 0), a);
+            teapot2Node.LocalTransform = Matrix4.CreateScale(0.8f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+
+            teapot3Node.LocalTransform = Matrix4.CreateScale(0.6f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
+
+            teapot4Node.LocalTransform = Matrix4.CreateScale(0.4f) * Matrix4.CreateTranslation(new Vector3(10, 0, 2)) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
 
 
-            // Set Phong lighting uniforms
-            if (shader != null && wood != null)
-            {
-                shader.SetAmbientColor(new Vector3(0.1f, 0.1f, 0.1f));
-                shader.SetNumLights(lightPositions.Length);
-                for (int i = 0; i < lightPositions.Length; i++)
-                {
-                    shader.SetLight(i, lightPositions[i], lightColors[i], lightIntensities[i]);
-                }
-                shader.SetViewPos(cameraPosition);
-                shader.SetDiffuseTexture(0); // Assumes the texture is bound to GL_TEXTURE0
-
-                // Use the shader program
-                GL.UseProgram(shader.programID);
-
-                // Render the scene graph
-                sceneGraph.Render(wood, shader, worldToCamera * cameraToScreen);
-            }
-            
 
             List<Light> allLights = rootNode.CollectLights();
             if (shader != null)
@@ -182,6 +176,10 @@ namespace Template
                 cameraPosition.X -= camMoveSpeed;
             if (input.IsKeyDown(Keys.A))
                 cameraPosition.X += camMoveSpeed;
+            if (input.IsKeyDown(Keys.Q))
+                cameraPosition.Y -= camMoveSpeed;
+            if (input.IsKeyDown(Keys.E))
+                cameraPosition.Y += camMoveSpeed;
             if (input.IsKeyDown(Keys.L))
                 camMoveSpeed += 0.1f;
             if (input.IsKeyDown(Keys.K))
