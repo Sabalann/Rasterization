@@ -20,7 +20,7 @@ Controls:	WASD for moving/translation of the camera in the X and Z directions, Q
 [+] Model matrix: for each mesh, stored as part of the scene graph
 [+] Scene graph data structure: tree hierarchy, no limitation on breadth or depth or size
 [+] Rendering: recursive scene graph traversal, correct model matrix concatenation
-[+/-] Shading in fragment shader: diffuse, glossy, uniform variable for ambient light color
+[+] Shading in fragment shader: diffuse, glossy, uniform variable for ambient light color
 [+] Point light: at least 1, position/color may be hardcoded
 
 Bonus features implemented:
