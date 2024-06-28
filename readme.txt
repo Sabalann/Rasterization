@@ -1,7 +1,7 @@
 Team members: (names and student IDs)
 * Sabalan Alaeiyeh 2576422
-* ...
-* ...
+* Armand Ayar 6402704
+* Jesse Tabak 1142356
 
 Tick the boxes below for the implemented features. Add a brief note only if necessary, e.g., if it's only partially working, or how to turn it on.
 
